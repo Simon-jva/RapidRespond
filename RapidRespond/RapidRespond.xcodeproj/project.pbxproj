@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A3800FCD2F7857A100721D1E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A3800FCC2F7857A100721D1E /* FirebaseCore */; };
+		A3800FCF2F7857AE00721D1E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A3800FCE2F7857AE00721D1E /* FirebaseFirestore */; };
+		A3800FD12F7857B700721D1E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A3800FD02F7857B700721D1E /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A3E60F1F2F7831D1003F4815 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3800FD12F7857B700721D1E /* FirebaseMessaging in Frameworks */,
+				A3800FCD2F7857A100721D1E /* FirebaseCore in Frameworks */,
+				A3800FCF2F7857AE00721D1E /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +81,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A3800FCB2F7857A100721D1E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		A3E60F062F7831CD003F4815 = {
 			isa = PBXGroup;
 			children = (
 				A3E60F112F7831CE003F4815 /* RapidRespond */,
 				A3E60F212F7831D1003F4815 /* RapidRespondTests */,
 				A3E60F2B2F7831D1003F4815 /* RapidRespondUITests */,
+				A3800FCB2F7857A100721D1E /* Frameworks */,
 				A3E60F102F7831CE003F4815 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +129,9 @@
 			);
 			name = RapidRespond;
 			packageProductDependencies = (
+				A3800FCC2F7857A100721D1E /* FirebaseCore */,
+				A3800FCE2F7857AE00721D1E /* FirebaseFirestore */,
+				A3800FD02F7857B700721D1E /* FirebaseMessaging */,
 			);
 			productName = RapidRespond;
 			productReference = A3E60F0F2F7831CE003F4815 /* RapidRespond.app */;
@@ -195,6 +215,9 @@
 			);
 			mainGroup = A3E60F062F7831CD003F4815;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A3800FC02F784D4800721D1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A3E60F102F7831CE003F4815 /* Products */;
 			projectDirPath = "";
@@ -400,6 +423,7 @@
 				DEVELOPMENT_TEAM = 874B2465FG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "RapidRespond needs your location to alert nearby responders";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -433,6 +457,7 @@
 				DEVELOPMENT_TEAM = 874B2465FG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "RapidRespond needs your location to alert nearby responders";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -580,6 +605,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A3800FC02F784D4800721D1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A3800FCC2F7857A100721D1E /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A3800FC02F784D4800721D1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		A3800FCE2F7857AE00721D1E /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A3800FC02F784D4800721D1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		A3800FD02F7857B700721D1E /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A3800FC02F784D4800721D1E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A3E60F072F7831CD003F4815 /* Project object */;
 }
