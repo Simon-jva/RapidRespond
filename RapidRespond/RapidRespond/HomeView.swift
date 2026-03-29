@@ -13,16 +13,17 @@ import CoreLocation
 struct HomeView: View {
     let deviceID: String
  
-    @State private var sosActivated = false
-    @State private var activeSosID: String? = nil
-    @State private var showResourcePicker = false
-    @State private var responderCount = 0
-    @State private var showResponderPopup = false
-    @State private var sosListener: ListenerRegistration? = nil
+    // Passed in from ContentView so popup shows on all tabs
+    @Binding var responderCount: Int
+    @Binding var showResponderPopup: Bool
  
+    // Persist SOS state across app restarts
+    @AppStorage("activeSosID") private var activeSosID: String = ""
+    @AppStorage("sosActivated") private var sosActivated: Bool = false
+ 
+    @State private var showResourcePicker = false
+    @State private var sosListener: ListenerRegistration? = nil
     @StateObject private var locationManager = LocationManager()
-    @AppStorage("carriesNarcan") private var carriesNarcan = false
-    @AppStorage("carriesEpiPen") private var carriesEpiPen = false
  
     var body: some View {
         ZStack {
@@ -74,60 +75,19 @@ struct HomeView: View {
                 }
  
                 Spacer()
- 
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("I'm carrying:")
-                        .foregroundColor(.gray)
-                        .font(.system(size: 14, weight: .medium))
- 
-                    Toggle("Narcan", isOn: $carriesNarcan)
-                        .foregroundColor(.white)
-                        .tint(.red)
- 
-                    Toggle("EpiPen", isOn: $carriesEpiPen)
-                        .foregroundColor(.white)
-                        .tint(.red)
-                }
-                .padding()
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(16)
-                .padding(.horizontal)
             }
             .padding(.vertical, 60)
- 
-            // "Help is on the way" popup
-            if showResponderPopup {
-                VStack {
-                    Spacer()
-                    HStack(spacing: 12) {
-                        Text("🚀")
-                            .font(.system(size: 28))
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Help is on the way!")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-                            Text("\(responderCount) responder\(responderCount == 1 ? "" : "s") responded")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding()
-                    .background(Color(white: 0.12))
-                    .cornerRadius(16)
-                    .padding(.horizontal)
-                    .padding(.bottom, 30)
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .animation(.spring(), value: showResponderPopup)
-            }
- 
- 
         }
         .confirmationDialog("What do you need?", isPresented: $showResourcePicker, titleVisibility: .visible) {
             Button("Narcan") { sendSOS(resourceNeeded: "narcan") }
             Button("EpiPen") { sendSOS(resourceNeeded: "epipen") }
             Button("Cancel", role: .cancel) {}
+        }
+        .onAppear {
+            // If app was closed while SOS was active, re-attach the listener
+            if sosActivated && !activeSosID.isEmpty && sosListener == nil {
+                listenForResponders(sosID: activeSosID)
+            }
         }
     }
  
@@ -145,26 +105,40 @@ struct HomeView: View {
             "resourceNeeded": resourceNeeded,
             "status": "active",
             "responderCount": 0,
-            "senderID": deviceID  // stored so responders don't get their own alert
+            "senderID": deviceID
         ]
  
         let docRef = db.collection("sos_alerts").addDocument(data: sosData) { error in
             if let error = error {
                 print("Error sending SOS: \(error)")
                 sosActivated = false
+                activeSosID = ""
             }
         }
  
+        // Persist the doc ID so we can restore after app restart
+        activeSosID = docRef.documentID
         listenForResponders(sosID: docRef.documentID)
     }
  
     func listenForResponders(sosID: String) {
-        activeSosID = sosID
         let db = Firestore.firestore()
  
         sosListener = db.collection("sos_alerts").document(sosID)
             .addSnapshotListener { snapshot, error in
                 guard let data = snapshot?.data() else { return }
+ 
+                // If resolved externally (e.g. edge case), clean up
+                let status = data["status"] as? String ?? "active"
+                if status != "active" {
+                    sosActivated = false
+                    activeSosID = ""
+                    responderCount = 0
+                    sosListener?.remove()
+                    sosListener = nil
+                    return
+                }
+ 
                 let count = data["responderCount"] as? Int ?? 0
                 if count > responderCount && count > 0 {
                     responderCount = count
@@ -176,23 +150,24 @@ struct HomeView: View {
             }
     }
  
-    // Only the SOS sender can call this — marks resolved for everyone
     func resolveSOS() {
         sosListener?.remove()
         sosListener = nil
  
-        guard let id = activeSosID else {
+        let id = activeSosID
+        guard !id.isEmpty else {
             sosActivated = false
+            activeSosID = ""
             return
         }
  
         let db = Firestore.firestore()
         db.collection("sos_alerts").document(id).updateData(["status": "resolved"]) { _ in
             sosActivated = false
-            activeSosID = nil
+            activeSosID = ""
             responderCount = 0
-            showResponderPopup = false
+            withAnimation { showResponderPopup = false }
         }
     }
- 
 }
+ 
